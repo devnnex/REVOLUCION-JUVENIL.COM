@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Birthday App 🍰</title>
+
+ <!-- 🧩 Favicon clásico -->
+  <link rel="icon" type="image/png" href="./images/favicon.png">
+
+  <!-- 📱 Ícono de app (iOS / Android) -->
+  <link rel="apple-touch-icon" href="./images/favicon.png">
+
+  <!-- 🧭 Configuración PWA -->
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ministerio App">
+
+  <!-- 📜 Manifest -->
+  <link rel="manifest" href="./manifest.json">
+
+<style>
+/* =========================
+   RESET & BASE
+========================= */
+* {
+  box-sizing: border-box;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at top, #5f2eea, #2a0a5e);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+/* =========================
+   CARD
+========================= */
+.app {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.35);
+  position: relative;
+  z-index: 1;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  text-align: center;
+  opacity: .85;
+  margin-bottom: 20px;
+}
+
+/* =========================
+   FORM
+========================= */
+label {
+  font-size: 14px;
+  opacity: .9;
+}
+
+input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  margin-top: 6px;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+/* =========================
+   COLORS
+========================= */
+.color-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#scroll-left,
+#scroll-right {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.colors {
+  display: flex;
+  gap: 10px;
+  overflow: hidden;
+  flex-wrap: nowrap;
+  scroll-behavior: smooth;
+  flex-grow: 1;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+.color {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #fff;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.color.selected {
+  transform: scale(1.2);
+  box-shadow: 0 0 12px #fff;
+}
+
+/* =========================
+   BUTTON
+========================= */
+button.save-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 16px;
+  border: none;
+  background: linear-gradient(135deg,#a855f7,#7c3aed);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* =========================
+   RESULT
+========================= */
+.result {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* =========================
+   LAYOUT
+========================= */
+.container {
+  display: grid;
+  grid-template-columns: 420px 360px;
+  gap: 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* =========================
+   LIST CARD
+========================= */
+.list-card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 20px 40px rgba(0,0,0,.35);
+}
+
+.list-card h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.list-card #list {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 16px;
+}
+
+.list-item {
+  color: #fff;
+  border-radius: 16px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  line-height: 1.3;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media(max-width:900px){
+  .container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================
+   MENU LATERAL GLASSMORPHISM
+========================= */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100%;
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(20px);
+  box-shadow: 4px 0 20px rgba(0,0,0,0.4);
+  border-radius: 0 24px 24px 0;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  transition: left 0.3s ease;
+  z-index: 1000;
+}
+
+#sidebar.open {
+  left: 0;
+}
+
+#sidebar h2 {
+  margin: 0 0 20px 0;
+  text-align: center;
+  font-size: 22px;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+#sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+#sidebar ul li {
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  background: rgba(255,255,255,0.1);
+  transition: background 0.2s;
+}
+
+#sidebar ul li:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+#sidebar .close-btn {
+  align-self: flex-end;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+/* Overlay para cerrar haciendo click afuera */
+#overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.3);
+  display: none;
+  z-index: 900;
+}
+#overlay.active {
+  display: block;
+}
+
+/* Botón menú */
+#menu-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1100;
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: #fff;
+  font-size: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0,0,0,0.4);
+}
+</style>
+</head>
+<body>
+
+<!-- BOTÓN MENÚ -->
+<button id="menu-btn">☰</button>
+
+<!-- MENÚ LATERAL -->
+<div id="sidebar">
+  <button class="close-btn">✕</button>
+  <h2>Menú</h2>
+  <ul>
+    <li>Ayunos</li>
+    <li>Palabra del día</li>
+    <li>Oraciones</li>
+    <li>Reflexiones</li>
+    <li>Estudios Bíblicos</li>
+  </ul>
+</div>
+
+<!-- OVERLAY -->
+<div id="overlay"></div>
+
+<div class="container">
+
+  <!-- CARD FORM -->
+  <div class="app">
+    <h1>🎉 Birthday App</h1>
+    <div class="subtitle">Guarda tu cumpleaños</div>
+
+    <label>Tu nombre</label>
+    <input id="name" placeholder="Ej: Laura">
+
+    <label>Fecha de cumpleaños</label>
+    <input id="date" type="date">
+
+    <label>Elige tu color</label>
+    <div class="color-wrapper">
+      <button id="scroll-left">◀</button>
+      <div class="colors" id="colors"></div>
+      <button id="scroll-right">▶</button>
+    </div>
+
+    <button class="save-btn" onclick="save(event)">Guardar cumpleaños</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <!-- LIST CARD -->
+  <div class="list-card">
+    <h2>🎂 Cumpleaños</h2>
+    <div id="list"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbycx9KNSYzlisJ8pVRnO_VRJEYxuGTFZFALGsf2XTLAlGeIrr-iwX966nFC_FFXbA2g/exec";
+
+/* =========================
+   HELPER
+========================= */
+function capitalize(str) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+/* =========================
+   GENERAR COLORES DINÁMICAMENTE
+========================= */
+const colorsContainer = document.getElementById('colors');
+let selectedColor = '';
+
+const colorPalette = [
+  '#f87171','#fca5a5','#f97316','#fb923c','#fbbf24','#fcd34d',
+  '#34d399','#6ee7b7','#22c55e','#16a34a','#60a5fa','#3b82f6',
+  '#1d4ed8','#a78bfa','#c4b5fd','#8b5cf6','#f472b6','#ec4899',
+  '#db2777','#d946ef','#f59e0b','#eab308','#84cc16','#4d7c0f',
+  '#0ea5e9','#0284c7','#0c4a6e','#f87171','#f43f5e','#be123c',
+  '#f97316','#ea580c','#facc15','#eab308','#84cc16','#65a30d'
+];
+
+colorPalette.forEach((color, idx)=>{
+  const div = document.createElement('div');
+  div.className = 'color';
+  div.dataset.color = color;
+  div.style.background = color;
+  if(idx===0){ div.classList.add('selected'); selectedColor=color; }
+  colorsContainer.appendChild(div);
+});
+
+colorsContainer.addEventListener('click', e=>{
+  if(e.target.classList.contains('color')){
+    document.querySelectorAll('.color').forEach(c=>c.classList.remove('selected'));
+    e.target.classList.add('selected');
+    selectedColor = e.target.dataset.color;
+  }
+});
+
+document.getElementById('scroll-left').addEventListener('click', ()=>{
+  const width = colorsContainer.querySelector('.color').offsetWidth + 10;
+  colorsContainer.scrollBy({left:-width*3, behavior:'smooth'});
+});
+document.getElementById('scroll-right').addEventListener('click', ()=>{
+  const width = colorsContainer.querySelector('.color').offsetWidth + 10;
+  colorsContainer.scrollBy({left:width*3, behavior:'smooth'});
+});
+
+/* =========================
+   LOAD BIRTHDAYS
+========================= */
+async function loadBirthdays() {
+  const list = document.getElementById("list");
+  list.innerHTML = "<h3>🎂 Cumpleaños registrados</h3><div>Cargando...</div>";
+
+  try {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+
+    list.innerHTML = "<h3>🎂 Cumpleaños registrados</h3>";
+
+    if (!data.length) {
+      list.innerHTML += "<div>No hay registros aún</div>";
+      return;
+    }
+
+    data.forEach(item => {
+      const bgColor = item.color || '#6b7280';
+      const dateText = item.birthday || item.date || "";
+      list.innerHTML += `
+        <div class="list-item" style="background:${bgColor}">
+          🎂 <span class="name">${item.name}</span><br>
+          <span class="date">${capitalize(dateText)}</span>
+        </div>
+      `;
+    });
+
+  } catch (err) {
+    console.error("GET ERROR:", err);
+    list.innerHTML += "<div>Error al cargar los datos</div>";
+  }
+}
+
+/* =========================
+   SAVE
+========================= */
+async function save(event) {
+  const nameInput = document.getElementById("name");
+  const dateInput = document.getElementById("date");
+  const resultDiv = document.getElementById("result");
+  const button = event.target;
+
+  const name = nameInput.value.trim();
+  const date = dateInput.value;
+
+  if (!name || !date) {
+    alert("Completa todos los campos y selecciona un color");
+    return;
+  }
+
+  button.disabled = true;
+  const originalText = button.innerHTML;
+  button.innerHTML = "Guardando... ⏳";
+  resultDiv.innerHTML = "<span style='color: #fff'>Guardando cumpleaños...</span>";
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, birthday: date, color: selectedColor })
+    });
+
+    try { await res.json(); } catch(e){}
+
+    nameInput.value = "";
+    dateInput.value = "";
+
+    // Mensaje compacto temporal
+    resultDiv.innerHTML = `
+      <div style="
+        padding: 10px 14px; 
+        background: ${selectedColor}; 
+        border-radius: 12px; 
+        text-align: center; 
+        font-weight: bold; 
+        color: #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      ">
+        🎂 ${name} cumple el ${capitalize(date)}
+      </div>
+    `;
+    setTimeout(()=>{ resultDiv.innerHTML=''; },3000);
+
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+    await loadBirthdays();
+
+  } catch (err) {
+    console.error("POST ERROR:", err);
+    resultDiv.innerHTML = "<span style='color: #f88'>Error al guardar</span>";
+  } finally {
+    button.disabled = false;
+    button.innerHTML = originalText;
+  }
+}
+
+/* =========================
+   INIT
+========================= */
+document.addEventListener("DOMContentLoaded", loadBirthdays);
+
+/* =========================
+   MENÚ LATERAL FUNCIONALIDAD
+========================= */
+const menuBtn = document.getElementById('menu-btn');
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('overlay');
+const closeBtn = document.querySelector('#sidebar .close-btn');
+
+function openMenu() {
+  sidebar.classList.add('open');
+  overlay.classList.add('active');
+}
+function closeMenu() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('active');
+}
+
+menuBtn.addEventListener('click', openMenu);
+closeBtn.addEventListener('click', closeMenu);
+overlay.addEventListener('click', closeMenu);
+</script>
+
+</body>
+</html>
